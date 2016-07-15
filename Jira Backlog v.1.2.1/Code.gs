@@ -31,7 +31,7 @@ function onOpen(e){
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var menuEntries = [{name: "Configure Jira", functionName: "jiraConfigure"},
                        {name: "Refresh Data Now", functionName: "jiraPullManual"},
-                       {name: "Schedule 4 Hourly Automatic Refresh", functionName: "scheduleRefresh"},
+                       {name: "Schedule Automatic Refresh", functionName: "scheduleRefresh"},
                        {name: "Stop Automatic Refresh", functionName: "removeTriggers"}]; 
   
     ss.addMenu("Jira", menuEntries);
@@ -64,14 +64,16 @@ function jiraConfigure() {
 
 // Adds automatic refresh triggers
 function scheduleRefresh() {
+    var time = Browser.inputBox("Enter desired time between refreshes in hours. e.g. 4", "Time", Browser.Buttons.OK)
+  
     var triggers = ScriptApp.getProjectTriggers();
     for (var i = 0; i < triggers.length; i++) {
         ScriptApp.deleteTrigger(triggers[i]);
     }
     
-    ScriptApp.newTrigger("jiraPull").timeBased().everyHours(4).create();
+    ScriptApp.newTrigger("jiraPull").timeBased().everyHours(time).create();
     
-    Browser.msgBox("Spreadsheet will refresh automatically every 4 hours.");
+    Browser.msgBox("Spreadsheet will refresh automatically every " + time + " hours.");
 }    
 
 // Removes automatic refresh triggers
