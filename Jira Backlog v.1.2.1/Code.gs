@@ -104,7 +104,7 @@ function jiraPull() {
         return;
     }    
     
-    var ss = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Backlog");
+    var ss = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("API | Epics");
     var headings = ss.getRange(1, 1, 1, ss.getLastColumn()).getValues()[0];
     
     
@@ -115,7 +115,7 @@ function jiraPull() {
         y.push(getStory(d,headings,allFields));
     }    
     
-    ss = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Backlog");
+    ss = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("API | Epics");
     var last = ss.getLastRow();
     if (last >= 2) {
         ss.getRange(2, 1, ss.getLastRow()-1,ss.getLastColumn()).clearContent();    
