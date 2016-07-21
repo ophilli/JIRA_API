@@ -92,55 +92,6 @@ function jiraPullManual() {
     Browser.msgBox("Jira backlog successfully imported");
 }    
 
-
-function getFields() {
-    return JSON.parse(getDataFromAPI("field"));  
-}    
-
-// Parses API data 
-function getStories() {
-    var allData = {issues:[]};
-    var data = {startAt:0,maxResults:0,total:1};
-    var startAt = 0;
-    
-    while (data.startAt + data.maxResults < data.total) {
-        Logger.log("Making request for %s entries", C_MAX_RESULTS);
-        data = JSON.parse(getDataFromAPI("search?jql=project%20%3D%20" 
-                                        + PropertiesService.getUserProperties().getProperty("prefix") 
-                                        + "%20and%20status%20!%3D%20resolved%20and%20type%20in%20("
-                                        + PropertiesService.getUserProperties().getProperty("issueTypes") 
-                                        + ")%20order%20by%20rank%20&maxResults=" 
-                                        + C_MAX_RESULTS + "&startAt=" + startAt));
-
-        allData.issues = allData.issues.concat(data.issues);
-        startAt = data.startAt + data.maxResults;
-    }    
-    
-    return allData;
-}    
-
-// JIRA API Call
-function getDataFromAPI(path) {
-    var url = "https://" + PropertiesService.getUserProperties().getProperty("host") + "/rest/api/2/" + path;
-    var digestfull = PropertiesService.getUserProperties().getProperty("digest");
-    
-    var headers = { "Accept":"application/json", 
-                            "Content-Type":"application/json", 
-                            "method": "GET",
-                            "headers": {"Authorization": digestfull},
-                            "muteHttpExceptions": true
-                            };
-    
-    var resp = UrlFetchApp.fetch(url,headers );
-    if (resp.getResponseCode() != 200) {
-        Browser.msgBox("Error retrieving data for url" + url + ":" + resp.getContentText());
-        return "";
-    }    
-    else {
-        return resp.getContentText();
-    }    
-}    
-
 // Manages and processes requests from API
 function jiraPull() {
     
@@ -189,6 +140,55 @@ function getAllFields() {
     }    
     
     return allFields;
+}    
+
+
+function getFields() {
+    return JSON.parse(getDataFromAPI("field"));  
+}    
+
+// Parses API data 
+function getStories() {
+    var allData = {issues:[]};
+    var data = {startAt:0,maxResults:0,total:1};
+    var startAt = 0;
+    
+    while (data.startAt + data.maxResults < data.total) {
+        Logger.log("Making request for %s entries", C_MAX_RESULTS);
+        data = JSON.parse(getDataFromAPI("search?jql=project%20%3D%20" 
+                                        + PropertiesService.getUserProperties().getProperty("prefix") 
+                                        + "%20and%20status%20!%3D%20resolved%20and%20type%20in%20("
+                                        + PropertiesService.getUserProperties().getProperty("issueTypes") 
+                                        + ")%20order%20by%20rank%20&maxResults=" 
+                                        + C_MAX_RESULTS + "&startAt=" + startAt));
+
+        allData.issues = allData.issues.concat(data.issues);
+        startAt = data.startAt + data.maxResults;
+    }    
+    
+    return allData;
+}    
+
+// JIRA API Call
+function getDataFromAPI(path) {
+    var url = "https://" + PropertiesService.getUserProperties().getProperty("host") + "/rest/api/2/" + path;
+    var digestfull = PropertiesService.getUserProperties().getProperty("digest");
+    
+    var headers = { "Accept":"application/json", 
+                            "Content-Type":"application/json", 
+                            "method": "GET",
+                            "headers": {"Authorization": digestfull},
+                            "muteHttpExceptions": true
+                            };
+    
+    var resp = UrlFetchApp.fetch(url,headers );
+    if (resp.getResponseCode() != 200) {
+        Browser.msgBox("Error retrieving data for url" + url + ":" + resp.getContentText());
+        return "";
+    }    
+    else {
+        return resp.getContentText();
+    }    
 }    
 
 
