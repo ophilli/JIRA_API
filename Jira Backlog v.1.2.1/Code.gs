@@ -15,7 +15,7 @@
 //
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -45,7 +45,7 @@ function onOpen(e){
 // Configures constants for JIRA Backlog
 function jiraConfigure() {
     
-    var prefix = Browser.inputBox("Enter the 3 digit prefix for your Jira Project. e.g. TST", "Prefix", Browser.Buttons.OK);
+    var prefix = Browser.inputBox("Enter the 3-4 digit prefix for your Jira Project. e.g. RCPQ", "Prefix", Browser.Buttons.OK);
     PropertiesService.getUserProperties().setProperty("prefix", prefix.toUpperCase());
     
     var host = Browser.inputBox("Enter the host name of your on demand instance e.g. revvy-modeln.atlassian.net", "Host", Browser.Buttons.OK);
