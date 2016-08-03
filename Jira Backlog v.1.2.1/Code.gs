@@ -45,17 +45,21 @@ function onOpen(e){
 // Configures constants for JIRA Backlog
 function jiraConfigure() {
     
-    var prefix = Browser.inputBox("Enter the 3-4 digit prefix for your Jira Project. e.g. RCPQ", "Prefix", Browser.Buttons.OK);
-    PropertiesService.getUserProperties().setProperty("prefix", prefix.toUpperCase());
+    //var prefix = Browser.inputBox("Enter the 3-4 digit prefix for your Jira Project. e.g. RCPQ", "Prefix", Browser.Buttons.OK);
+    var prefix = "project = RCPQ OR project = RRM OR project = REAI OR project = RCM";
+    PropertiesService.getUserProperties().setProperty("prefix", prefix); //.toUpperCase());
     
-    var host = Browser.inputBox("Enter the host name of your on demand instance e.g. revvy-modeln.atlassian.net", "Host", Browser.Buttons.OK);
+    //var host = Browser.inputBox("Enter the host name of your on demand instance e.g. revvy-modeln.atlassian.net", "Host", Browser.Buttons.OK);
+    var host = "revvy-modeln.atlassian.net";
     PropertiesService.getUserProperties().setProperty("host", host);
     
-    var userAndPassword = Browser.inputBox("Enter your Jira On Demand User id and Password in the form User:Password. e.g. Tommy.Smith:ilovejira (Note: This will be base64 Encoded and saved as a property on the spreadsheet)", "Userid:Password", Browser.Buttons.OK_CANCEL);
+    //var userAndPassword = Browser.inputBox("Enter your Jira On Demand User id and Password in the form User:Password. e.g. Tommy.Smith:ilovejira (Note: This will be base64 Encoded and saved as a property on the spreadsheet)", "Userid:Password", Browser.Buttons.OK_CANCEL);
+    var userAndPassword = "******:*******";
     var x = Utilities.base64Encode(userAndPassword);
     PropertiesService.getUserProperties().setProperty("digest", "Basic " + x);
     
-    var issueTypes = Browser.inputBox("Enter a comma separated list of the types of issues you want to import    e.g. story or story,epic,bug", "Issue Types", Browser.Buttons.OK);
+    //var issueTypes = Browser.inputBox("Enter a comma separated list of the types of issues you want to import    e.g. story or story,epic,bug", "Issue Types", Browser.Buttons.OK);
+    var issueTypes = "epic";
     PropertiesService.getUserProperties().setProperty("issueTypes", issueTypes);
 
 
@@ -88,7 +92,12 @@ function removeTriggers() {
 
 // Manually refreshes JIRA data
 function jiraPullManual() {
-    jiraPull();
+    var status = jiraPull();
+    
+    if(status == -1) {
+        Browser.msgBox("Jira backlog failed to import");
+    }
+    
     Browser.msgBox("Jira backlog successfully imported");
 }    
 
@@ -101,13 +110,11 @@ function jiraPull() {
     
     if (allFields === "" || data === "") {
         Browser.msgBox("Error pulling data from Jira - aborting now.");
-        return;
+        return -1;
     }    
     
-    var ss = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("API | Epics");
+    var ss = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Roadmap - Epic");
     var headings = ss.getRange(1, 1, 1, ss.getLastColumn()).getValues()[0];
-    
-    
     
     var y = new Array();
     for (i=0;i<data.issues.length;i++) {
@@ -115,7 +122,7 @@ function jiraPull() {
         y.push(getStory(d,headings,allFields));
     }    
     
-    ss = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("API | Epics");
+    ss = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Roadmap - Epic");
     var last = ss.getLastRow();
     if (last >= 2) {
         ss.getRange(2, 1, ss.getLastRow()-1,ss.getLastColumn()).clearContent();    
@@ -155,12 +162,14 @@ function getStories() {
     
     while (data.startAt + data.maxResults < data.total) {
         Logger.log("Making request for %s entries", C_MAX_RESULTS);
-        data = JSON.parse(getDataFromAPI("search?jql=project%20%3D%20" 
-                                        + PropertiesService.getUserProperties().getProperty("prefix") 
-                                        + "%20and%20status%20!%3D%20resolved%20and%20type%20in%20("
-                                        + PropertiesService.getUserProperties().getProperty("issueTypes") 
-                                        + ")%20order%20by%20rank%20&maxResults=" 
-                                        + C_MAX_RESULTS + "&startAt=" + startAt));
+        //project+=+RCPQ+OR+project+=+RRM+OR+project+=+REAI+OR+project+=+RCM)
+        data = JSON.parse(getDataFromAPI("search?jql=("
+                                        + encodeURI(PropertiesService.getUserProperties().getProperty("prefix"))
+                                        + ")+AND+status+!=+resolved+AND+type+in+("
+                                        + PropertiesService.getUserProperties().getProperty("issueTypes") + ")"
+                                        + "+order+by+rank+"
+                                        + "&maxResults=" + C_MAX_RESULTS 
+                                        + "&startAt=" + startAt));
 
         allData.issues = allData.issues.concat(data.issues);
         startAt = data.startAt + data.maxResults;
@@ -175,13 +184,13 @@ function getDataFromAPI(path) {
     var digestfull = PropertiesService.getUserProperties().getProperty("digest");
     
     var headers = { "Accept":"application/json", 
-                            "Content-Type":"application/json", 
-                            "method": "GET",
-                            "headers": {"Authorization": digestfull},
-                            "muteHttpExceptions": true
-                            };
+                    "Content-Type":"application/json", 
+                    "method": "GET",
+                    "headers": {"Authorization": digestfull},
+                    "muteHttpExceptions": true
+                  };
     
-    var resp = UrlFetchApp.fetch(url,headers );
+    var resp = UrlFetchApp.fetch(url,headers);
     if (resp.getResponseCode() != 200) {
         Browser.msgBox("Error retrieving data for url" + url + ":" + resp.getContentText());
         return "";
