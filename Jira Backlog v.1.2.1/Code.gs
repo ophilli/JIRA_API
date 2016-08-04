@@ -169,7 +169,7 @@ function getStories() {
         Logger.log("Making request for %s entries", C_MAX_RESULTS);
         //project+=+RCPQ+OR+project+=+RRM+OR+project+=+REAI+OR+project+=+RCM)
         data = JSON.parse(getDataFromAPI(encodeURI("search?jql=("
-                                        + PropertiesService.getUserProperties().getProperty("prefix"))
+                                        + PropertiesService.getUserProperties().getProperty("prefix")
                                         + ") AND status != resolved AND type in ("
                                         + PropertiesService.getUserProperties().getProperty("issueTypes") + ")"
                                         + " order by rank "
