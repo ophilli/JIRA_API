@@ -1,8 +1,8 @@
 // ---------------------------------------------------------------------------------------------------------------------------------------------------
 // The MIT License (MIT)
 // 
-// Copyright (c) 2014 Iain Brown - http://www.littlebluemonkey.com/blog/automatically-import-jira-backlog-into-google-spreadsheet
-// 
+// Original Copyright (c) 2014 Iain Brown - http://www.littlebluemonkey.com/blog/automatically-import-jira-backlog-into-google-spreadsheet
+// Modified Copyright (c) 2016 Model N, Inc.
 //
 // Inspired by http://gmailblog.blogspot.co.nz/2011/07/gmail-snooze-with-apps-script.html
 //
