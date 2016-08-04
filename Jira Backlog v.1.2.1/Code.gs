@@ -29,10 +29,12 @@ var C_MAX_RESULTS = 1000;
 // Generates JIRA Backlog control menu
 function onOpen(e){
     var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var menuEntries = [{name: "Configure Jira", functionName: "jiraConfigure"},
-                       {name: "Refresh Data Now", functionName: "jiraPullManual"},
-                       {name: "Schedule Automatic Refresh", functionName: "scheduleRefresh"},
-                       {name: "Stop Automatic Refresh", functionName: "removeTriggers"}]; 
+    var menuEntries = [ {name: "Configure Jira", functionName: "jiraConfigure"},
+                        {name: "Display Config", functionName: "printConf"},
+                        {name: "Refresh Data Now", functionName: "jiraPullManual"},
+                        {name: "Schedule Automatic Refresh", functionName: "scheduleRefresh"},
+                        {name: "Stop Automatic Refresh", functionName: "removeTriggers"}
+                    ]; 
   
     ss.addMenu("Jira", menuEntries);
 
@@ -54,7 +56,7 @@ function jiraConfigure() {
     PropertiesService.getUserProperties().setProperty("host", host);
     
     //var userAndPassword = Browser.inputBox("Enter your Jira On Demand User id and Password in the form User:Password. e.g. Tommy.Smith:ilovejira (Note: This will be base64 Encoded and saved as a property on the spreadsheet)", "Userid:Password", Browser.Buttons.OK_CANCEL);
-    var userAndPassword = "******:*******";
+    var userAndPassword = "****:****";
     var x = Utilities.base64Encode(userAndPassword);
     PropertiesService.getUserProperties().setProperty("digest", "Basic " + x);
     
@@ -65,6 +67,15 @@ function jiraConfigure() {
 
     Browser.msgBox("Jira configuration saved successfully.");
 }    
+
+// Displays the configured settings
+function printConf() {
+    Browser.msgBox('Selected project prefixes are "' + PropertiesService.getUserProperties().getProperty("prefix") + '".');
+    
+    Browser.msgBox('Selected host name is "' + PropertiesService.getUserProperties().getProperty("host") + '".');
+    
+    Browser.msgBox('Selected issue types are "' + PropertiesService.getUserProperties().getProperty("issueTypes") + '".');
+}
 
 // Adds automatic refresh triggers
 function scheduleRefresh() {
